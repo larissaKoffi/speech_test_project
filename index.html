@@ -16,45 +16,34 @@
         </button>
 
         <audio class="playback" controls></audio>
-
-
-        <div id="output" class="outputText"></div>
     </main>
 
     <script src="main.js"></script>
 
 <script>
-    const startButton = document.querySelector('#mic');
-    const outputDiv = document.getElementById('output');
-    const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+     if (window.SpeechRecognition) {
+         const recognition = new SpeechRecognition();
+         recognition.lang = "fr-FR";
+         recognition.interimResults = false;
 
-    recognition.interimResults = true;
-    recognition.continuous = true;
+         document.getElementById("start-btn").addEventListener("click", () => {
+             recognition.start();
+         });
 
-    startButton.addEventListener('click', () => {
-        recognition.start();
-        startButton.disabled = true;
-        //startButton.textContent = 'Recording...';
-    });
+         recognition.onresult = (event) => {
+             const transcript = event.results[0][0].transcript;
+             document.getElementById("output").innerText = transcript;
+         };
 
-    recognition.onresult = event => {
-        const result = event.results[event.results.length - 1][0].transcript;
-        outputDiv.textContent = result;
-    };
-
-    recognition.onend = () => {
-        startButton.disabled = false;
-        startButton.textContent = 'Start Recording';
-    };
-
-    recognition.onerror = event => {
-        console.error('Speech recognition error:', event.error);
-    };
-
-    recognition.onnomatch = () => {
-        console.log('No speech was recognized.');
-    };
-</script>
+         recognition.onerror = (event) => {
+             console.error("Erreur de reconnaissance vocale : ", event.error);
+         };
+     } else {
+         alert("Votre navigateur ne supporte pas la reconnaissance vocale.");
+     }
+ </script>
 
 </body>
 </html>
