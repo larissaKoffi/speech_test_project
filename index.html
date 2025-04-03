@@ -34,7 +34,7 @@
     startButton.addEventListener('click', () => {
         recognition.start();
         startButton.disabled = true;
-        startButton.textContent = 'Recording...';
+        //startButton.textContent = 'Recording...';
     });
 
     recognition.onresult = event => {
