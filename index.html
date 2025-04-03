@@ -18,8 +18,35 @@
         <audio class="playback" controls></audio>
     </main>
 
-    <script src="main.js">
+    <script src="main.js"></script>
 
+    <script>
+        function initialize() {
+            if ('speechSynthesis' in window) {
+              SYNTHESIS = window.speechSynthesis;
+          
+              let timer = setInterval(function () {
+                let voices = SYNTHESIS.getVoices();
+          
+                if (voices.length > 0) {
+                  getVoices();
+                  fetchNewQuote();
+                  clearInterval(timer);
+                }
+              }, 200);
+            } else {
+              let message = 'Text-to-speech not supported by your browser.';
+          
+              // Create the browser notice element
+              let notice = $('<div class="w-100 py-4 bg-danger font-weight-bold text-white position-absolute text-center" style="bottom:0; z-index:10">' + message + '</div>');
+          
+              fetchNewQuote();
+              console.log(message);
+          
+              // Display non-support info on DOM
+              $(document.body).append(notice);
+            }
+          }
     </script>
 
 </body>
