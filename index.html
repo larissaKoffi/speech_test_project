@@ -16,38 +16,45 @@
         </button>
 
         <audio class="playback" controls></audio>
+
+
+        <div id="output" class="outputText"></div>
     </main>
 
     <script src="main.js"></script>
 
-    <script>
-        function initialize() {
-            if ('speechSynthesis' in window) {
-              SYNTHESIS = window.speechSynthesis;
-          
-              let timer = setInterval(function () {
-                let voices = SYNTHESIS.getVoices();
-          
-                if (voices.length > 0) {
-                  getVoices();
-                  fetchNewQuote();
-                  clearInterval(timer);
-                }
-              }, 200);
-            } else {
-              let message = 'Text-to-speech not supported by your browser.';
-          
-              // Create the browser notice element
-              let notice = $('<div class="w-100 py-4 bg-danger font-weight-bold text-white position-absolute text-center" style="bottom:0; z-index:10">' + message + '</div>');
-          
-              fetchNewQuote();
-              console.log(message);
-          
-              // Display non-support info on DOM
-              $(document.body).append(notice);
-            }
-          }
-    </script>
+<script>
+    const startButton = document.getElementById('mic-toggle');
+    const outputDiv = document.getElementById('output');
+    const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    startButton.addEventListener('click', () => {
+        recognition.start();
+        startButton.disabled = true;
+        startButton.textContent = 'Recording...';
+    });
+
+    recognition.onresult = event => {
+        const result = event.results[event.results.length - 1][0].transcript;
+        outputDiv.textContent = result;
+    };
+
+    recognition.onend = () => {
+        startButton.disabled = false;
+        startButton.textContent = 'Start Recording';
+    };
+
+    recognition.onerror = event => {
+        console.error('Speech recognition error:', event.error);
+    };
+
+    recognition.onnomatch = () => {
+        console.log('No speech was recognized.');
+    };
+</script>
 
 </body>
 </html>
