@@ -6,6 +6,7 @@
     <title>Audio Recorder</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!--link rel="shortcut icon" href="https://www.callcentrehelper.com/images/stories/2023/08/voice-1310817572-760.jpg" type="image/x-icon"--->
 </head>
 <body>
     
@@ -24,29 +25,45 @@
     <script src="main.js"></script>
 
 <script>
-     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-     if (window.SpeechRecognition) {
-         const recognition = new SpeechRecognition();
-         recognition.lang = "fr-FR";
-         recognition.interimResults = false;
 
-         document.getElementById("start-btn").addEventListener("click", () => {
-             recognition.start();
-         });
+    const mic = document.getElementById("mic");
+    const output = document.getElementById("output");
 
-         recognition.onresult = (event) => {
-             const transcript = event.results[0][0].transcript;
-             document.getElementById("output").innerText = transcript;
-         };
 
-         recognition.onerror = (event) => {
-             console.error("Erreur de reconnaissance vocale : ", event.error);
-         };
-     } else {
-         alert("Votre navigateur ne supporte pas la reconnaissance vocale.");
-     }
- </script>
+    //voir si le nvigateur pred le module en charge
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        throw new Error("La reconnaissance vocale n'est pas supportée.");
+    }
+
+
+    //création de l'objet recognition
+    const recognition = new SpeechRecognition();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = true;
+
+    //afficher la phrase
+    recognition.onresult = e => {
+        output.textContent = e.results[0][0].transcript;
+    };
+
+
+    //afficher les erreurs
+    recognition.onerror = e => {
+        output.textContent = "Erreur : " + e.error;
+    };
+
+    //demarrer la réconnassance vocale lorsqu'on clique sur le micro
+    mic.addEventListener("click", () => {
+        recognition.start();
+        mic.textContent = "Écoute...";
+    });
+
+    //fin de la réconnaissance vocal
+    recognition.onend = () => {
+        mic.textContent = "Démarrer";
+    };
+</script>
 
 </body>
 </html>
