@@ -29,40 +29,51 @@
     const mic = document.getElementById("mic");
     const output = document.getElementById("output");
 
-
-    //voir si le nvigateur pred le module en charge
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
         throw new Error("La reconnaissance vocale n'est pas supportée.");
     }
 
-
-    //création de l'objet recognition
     const recognition = new SpeechRecognition();
     recognition.lang = "fr-FR";
     recognition.interimResults = true;
 
-    //afficher la phrase
-    recognition.onresult = e => {
-        output.textContent = e.results[0][0].transcript;
+    let isListening = false;
+    let isRecognizing = false;
+
+    recognition.onresult = (e) => {
+        const last = e.results.length - 1;
+        const transcript = e.results[last][0].transcript;
+        output.textContent += transcript + " ";
     };
 
-
-    //afficher les erreurs
-    recognition.onerror = e => {
+    recognition.onerror = (e) => {
         output.textContent = "Erreur : " + e.error;
     };
 
-    //demarrer la réconnassance vocale lorsqu'on clique sur le micro
     mic.addEventListener("click", () => {
-        recognition.start();
-        mic.textContent = "Écoute...";
+        isListening = !isListening;
+
+        if (isListening && !isRecognizing) {
+            mic.classList.add("active");
+            recognition.start();
+        } else {
+            mic.classList.remove("active");
+            recognition.stop();
+        }
     });
 
-    //fin de la réconnaissance vocal
-    recognition.onend = () => {
-        mic.textContent = "Démarrer";
+    recognition.onstart = () => {
+        isRecognizing = true;
     };
+
+    recognition.onend = () => {
+        isRecognizing = false;
+        if (isListening) {
+            recognition.start();
+        }
+    };
+
 </script>
 
 </body>
