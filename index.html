@@ -36,10 +36,10 @@
 
     const recognition = new SpeechRecognition();
     recognition.lang = "fr-FR";
-    recognition.interimResults = true;
+    recognition.interimResults = false;
 
     let isListening = false;
-    let isRecognizing = false;
+    let isRecognizing = false;  
 
     recognition.onresult = (e) => {
         const last = e.results.length - 1;
@@ -77,4 +77,4 @@
 </script>
 
 </body>
-</html>
+</html> 

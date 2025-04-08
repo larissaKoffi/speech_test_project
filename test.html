@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Résumé Vocal</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <button class="mic-toggle" id="mic">
+      <span class="material-icons">mic</span>
+    </button>
+    <audio class="playback" controls></audio>
+    <div id="output" class="outputText"></div>
+  </main>
+
+  <script>
+    const mic = document.getElementById("mic");
+    const output = document.getElementById("output");
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = false;
+
+    let isListening = false;
+    let isRecognizing = false;
+
+    recognition.onresult = async (e) => {
+      const transcript = e.results[0][0].transcript;
+
+      // Appel backend pour résumé
+      const response = await fetch('http://localhost:5000/api/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: transcript })
+      });
+
+      //recupération du résumé
+      const data = await response.json();
+      output.textContent = data.summary;
+
+      // Arrêt automatique après une phrase
+    //   mic.classList.remove("active");
+    //   isListening = false;
+    };
+
+    recognition.onerror = (e) => {
+      output.textContent = "Erreur : " + e.error;
+      mic.classList.remove("active");
+      isListening = false;
+    };
+
+    mic.addEventListener("click", () => {
+      isListening = !isListening;
+
+      if (isListening && !isRecognizing) {
+        mic.classList.add("active");
+        recognition.start();
+      } else {
+        mic.classList.remove("active");
+        recognition.stop();
+      }
+    });
+
+    recognition.onstart = () => { isRecognizing = true; };
+    recognition.onend = () => { isRecognizing = false; };
+  </script>
+</body>
+</html>
